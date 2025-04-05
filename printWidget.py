@@ -134,7 +134,14 @@ class PrintWidget(QWidget):
 
         painter = QPainter(printer)
         
-        self.pageWidget.draw(painter)
+        pageCoutn = int(len(self.pageWidget.data)/(self.pageWidget.columnCount*self.pageWidget.rowCount))+1
+    
+        for page in range(pageCoutn):
+            if page>0:
+                printer.newPage()
+            self.pageWidget.setPage(page)
+            self.pageWidget.draw(painter)    
+            
         painter.end()
 
     def refreshPrinters(self):
