@@ -324,6 +324,7 @@ class LayoutEditorWidget(QWidget):
             editor.moveUpComponent.connect(self.moveUpComponent)
             editor.moveDownComponent.connect(self.moveDownComponent)
             self.componentsLayout.addWidget(editor)
+        self.componentsLayout.addStretch(1)
 
     def removeComponent(self,i):
         if i>=0 and i<len(self.layoutData['componets']):
