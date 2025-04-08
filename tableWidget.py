@@ -59,10 +59,10 @@ class TableWidget(QWidget):
             print("No file selected")
             return
         
-        with open(filename[0], 'r') as file:
+        with open(filename[0], 'r',encoding="utf-8") as file:
             data = file.read()
                         
-            reader = csv.reader(data.splitlines())
+            reader = csv.reader(data.splitlines(), delimiter=';')
             self.tabWidget.setRowCount(0)
             self.tabWidget.setColumnCount(0)
             for i, row in enumerate(reader):

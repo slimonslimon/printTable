@@ -43,13 +43,14 @@ class LayoutWidget(QWidget):
         xp=self.mm2p(x,p,'x')
         yp=self.mm2p(y,p,'y')
 
+        p.setPen(Qt.GlobalColor.black)
         p.setBrush(Qt.GlobalColor.white)
         p.drawRect(int(xp), int(yp), int(w), int(h))
 
         for c in self.layoutData['componets']:
             if c['type']=='text':
                 textOptions = QTextOption()
-                textOptions.setAlignment(Qt.AlignmentFlag.AlignJustify)
+                textOptions.setAlignment(Qt.AlignmentFlag.AlignLeft)
                 textOptions.setWrapMode(QTextOption.WrapMode.WordWrap)
                 font = QFont(c['fontName'], c['fontSize'], c['fontWeight'], c['fontItalic'])
                 p.setFont(font)
