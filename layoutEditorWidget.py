@@ -129,6 +129,52 @@ class ImgComponentEditor(QWidget):
                 "w":self.w.value(),
                 "h":self.h.value()
             }
+    
+class QRcodeComponentEditor(QWidget):
+    dataUpdate = pyqtSignal(dict)
+    def __init__(self,componentData,parent=None):
+        super().__init__(parent)
+        layout = QHBoxLayout(self)
+        self.xe=QSpinBox(self)
+        self.xe.setValue(componentData['x'])
+        self.xe.valueChanged.connect(self.onDataChange)
+        layout.addWidget(self.xe)
+
+        self.ye=QSpinBox(self)
+        self.ye.setValue(componentData['y'])        
+        self.ye.valueChanged.connect(self.onDataChange)
+        layout.addWidget(self.ye)
+
+        self.w=QSpinBox(self)
+        self.w.setValue(componentData['w'])        
+        self.w.valueChanged.connect(self.onDataChange)
+        layout.addWidget(self.w)
+
+        self.h=QSpinBox(self)
+        self.h.setValue(componentData['h'])
+        self.h.valueChanged.connect(self.onDataChange)
+        layout.addWidget(self.h)
+
+        self.data = QLineEdit(componentData['data'],self)        
+        self.data.textChanged.connect(self.onDataChange)
+        layout.addWidget(self.data)
+        layout.addStretch(1)
+        
+        self.setLayout(layout)
+
+    def onDataChange(self):
+        self.dataUpdate.emit(
+            self.getData())
+        
+    def getData(self):
+        return {
+                "type":"qrcode",
+                "data":self.data.text(),
+                "x":self.xe.value(),
+                "y":self.ye.value(),
+                "w":self.w.value(),
+                "h":self.h.value()
+            }
 
 class ComponentEditor(QWidget):
     dataUpdate = pyqtSignal(dict)
@@ -144,6 +190,9 @@ class ComponentEditor(QWidget):
         
         if componetData['type']=='img':
             self.editor=ImgComponentEditor(componetData,self)
+
+        if componetData['type']=='qrcode':
+            self.editor=QRcodeComponentEditor(componetData,self)
 
         if self.editor is not None:            
             self.editor.dataUpdate.connect(self.subdataUpdate)
@@ -205,19 +254,19 @@ class LayoutEditorWidget(QWidget):
         layout.addStretch(1)
         sizeLine = QHBoxLayout()
 
-        width=QSpinBox(self)
-        width.setValue(self.layoutData['w'])
-        width.setMinimum(1)
-        width.setMaximum(1000)
-        width.valueChanged.connect(self.setWidth)
-        sizeLine.addWidget(width)
+        self.widthW=QSpinBox(self)
+        self.widthW.setValue(self.layoutData['w'])
+        self.widthW.setMinimum(1)
+        self.widthW.setMaximum(1000)
+        self.widthW.valueChanged.connect(self.setWidth)
+        sizeLine.addWidget(self.widthW)
 
-        height=QSpinBox(self)
-        height.setValue(self.layoutData['h'])
-        height.setMinimum(1)
-        height.setMaximum(1000)
-        height.valueChanged.connect(self.setHeight)
-        sizeLine.addWidget(height)
+        self.heightW=QSpinBox(self)
+        self.heightW.setValue(self.layoutData['h'])
+        self.heightW.setMinimum(1)
+        self.heightW.setMaximum(1000)
+        self.heightW.valueChanged.connect(self.setHeight)
+        sizeLine.addWidget(self.heightW)
 
         layout.addLayout(sizeLine)
 
@@ -244,6 +293,10 @@ class LayoutEditorWidget(QWidget):
         addImgButton = QPushButton("Add Img", self)
         buttonLine.addWidget(addImgButton)
         addImgButton.clicked.connect(self.addImgComponent)
+
+        addQRButton = QPushButton("Add QR", self)
+        buttonLine.addWidget(addQRButton)
+        addQRButton.clicked.connect(self.addQRComponent)
 
         layout.addLayout(buttonLine)
 
@@ -318,6 +371,19 @@ class LayoutEditorWidget(QWidget):
         self.layoutWidget.updateLayoutData(self.layoutData)
         self.layoutUpdate.emit(self.layoutData)
 
+    def addQRComponent(self):
+        self.layoutData['componets'].append({
+                "type":"qrcode",
+                "data":"",
+                "x":10,
+                "y":10,
+                "w":50,
+                "h":50,                
+            })
+        self.buildEditor()
+        self.layoutWidget.updateLayoutData(self.layoutData)
+        self.layoutUpdate.emit(self.layoutData)
+
     def setWidth(self,w):
         self.layoutData['w']=w
         self.layoutWidget.updateLayoutData(self.layoutData)
@@ -351,15 +417,17 @@ class LayoutEditorWidget(QWidget):
             self.layoutWidget.updateLayoutData(self.layoutData)
             self.layoutUpdate.emit(self.layoutData)
             self.filename=filename[0]
+            self.heightW.setValue(self.layoutData['h'])
+            self.widthW.setValue(self.layoutData['w'])
             self.buildEditor()
 
     def saveFile(self):
-        if self.filename=="":
-            filename = QFileDialog.getSaveFileName(self, "Save Layout File", "", "Layout Files (*.layout);;All Files (*)")
-            if not filename[0]:
-                print("No file selected")
-                return
-            self.filename=filename[0]
+        
+        filename = QFileDialog.getSaveFileName(self, "Save Layout File", "", "Layout Files (*.layout);;All Files (*)")
+        if not filename[0]:
+            print("No file selected")
+            return
+        self.filename=filename[0]
         
         with open(self.filename, 'w') as file:
             json.dump(self.layoutData, file, indent=4)

@@ -3,6 +3,7 @@ from PyQt6.QtGui import QPainter, QPaintEvent, QTextOption,QFont,QColor,QImage
 from PyQt6.QtCore import Qt,QRectF
 
 import re
+import qrcode
 
 class LayoutWidget(QWidget):
     def __init__(self, parent=None):
@@ -43,8 +44,8 @@ class LayoutWidget(QWidget):
         xp=self.mm2p(x,p,'x')
         yp=self.mm2p(y,p,'y')
 
-        p.setPen(Qt.GlobalColor.black)
-        p.setBrush(Qt.GlobalColor.white)
+        p.setPen(QColor(0, 0, 0))
+        p.setBrush(QColor(255, 255, 255))
         p.drawRect(int(xp), int(yp), int(w), int(h))
 
         for c in self.layoutData['componets']:
@@ -75,7 +76,27 @@ class LayoutWidget(QWidget):
                                   self.mm2p(c['w'],p,'x'),
                                   self.mm2p(c['h'],p,'h')),
                            img)
-
+                
+            if c['type']=='qrcode':
+                text=self.processText(c['data'])
+                if(text==""):
+                    continue
+                qr = qrcode.QRCode(
+                    version=1,
+                    error_correction=qrcode.constants.ERROR_CORRECT_L,
+                    box_size=10,
+                    border=4,
+                )
+                qr.add_data(text)
+                qr.make(fit=True)
+                img = qr.make_image(fill_color="black", back_color="white")
+                img.save('qrcode.png')
+                img = QImage('qrcode.png')
+                p.drawImage(QRectF(self.mm2p(c['x']+x,p,'x'),
+                                  self.mm2p(c['y']+y,p,'y'),
+                                  self.mm2p(c['w'],p,'x'),
+                                  self.mm2p(c['h'],p,'h')),
+                           img)
 
     def updateData(self,data):
         self.data=data

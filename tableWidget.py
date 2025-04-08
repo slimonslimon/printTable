@@ -26,7 +26,7 @@ class TableWidget(QWidget):
         self.tabWidget.cellChanged.connect(self.onDataChange)
         layout.addWidget(self.tabWidget)
 
-        layout.addStretch(1)
+        #layout.addStretch(1)
         buttonLine1 = QHBoxLayout()
 
         addRowButton = QPushButton("Add Row", self)
@@ -79,7 +79,7 @@ class TableWidget(QWidget):
             return
         
         with open(filename[0], 'w') as file:
-            writer = csv.writer(file)
+            writer = csv.writer(file,delimiter=';')
             for i in range(self.tabWidget.rowCount()):
                 row = []
                 for j in range(self.tabWidget.columnCount()):

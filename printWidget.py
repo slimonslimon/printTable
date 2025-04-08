@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget,QVBoxLayout, QHBoxLayout,QPushButton,QComboBox,QSpinBox,QLabel
+from PyQt6.QtWidgets import QWidget,QVBoxLayout, QHBoxLayout,QPushButton,QComboBox,QSpinBox,QLabel,QFileDialog,QCheckBox
 from PyQt6.QtGui import QPainter, QPaintEvent, QTextOption,QFont,QColor
 from PyQt6.QtCore import Qt,QRectF
 from PyQt6.QtGui import QAction,QPainter,QPageSize
@@ -85,6 +85,10 @@ class PrintWidget(QWidget):
         offsetYSpin.valueChanged.connect(self.pageWidget.setOffsetY)
         buttonLine2.addWidget(offsetYSpin)
         buttonLine2.addSpacing(10)
+
+        self.allPagesCheckBox = QCheckBox("All Pages", self)
+        self.allPagesCheckBox.setChecked(True)
+        buttonLine2.addWidget(self.allPagesCheckBox)
         
 
         buttonLine2.addStretch(1)   
@@ -101,6 +105,10 @@ class PrintWidget(QWidget):
         buttonLine.addWidget(printButton)
         printButton.clicked.connect(self.printLayout)
 
+        pdfButton = QPushButton("Print PDF", self)
+        buttonLine.addWidget(pdfButton)
+        pdfButton.clicked.connect(self.printLayoutPDF)
+
         layout.addLayout(buttonLine)
         
         self.setLayout(layout)
@@ -113,6 +121,20 @@ class PrintWidget(QWidget):
             return mm*p.device().logicalDpiX()/25.4
         
         return mm*p.device().logicalDpiY()/25.4
+
+    def printLayoutPDF(self):
+        filename= QFileDialog.getSaveFileName(self, "Save PDF File", "", "PDF Files (*.pdf);;All Files (*)")
+        if not filename[0]:
+            print("No file selected")
+            return
+
+        printer = QPrinter(QPrinter.PrinterMode.HighResolution)        
+        printer.setPageSize(QPageSize(QPageSize.PageSizeId.A4))
+        printer.setFullPage(True)
+        printer.setOutputFormat(QPrinter.OutputFormat.PdfFormat)
+        printer.setOutputFileName(filename[0])
+
+        self.doPrint(printer)     
 
     def printLayout(self):
         selected_printer = None
@@ -128,20 +150,25 @@ class PrintWidget(QWidget):
         printer = QPrinter(selected_printer,QPrinter.PrinterMode.HighResolution)        
         printer.setPageSize(QPageSize(QPageSize.PageSizeId.A4))
         printer.setFullPage(True)
-        #printer.setOutputFormat(QPrinter.OutputFormat.NativeFormat)
-        printer.setOutputFormat(QPrinter.OutputFormat.PdfFormat)
-        printer.setOutputFileName("output.pdf")        
-
-        painter = QPainter(printer)
+        printer.setOutputFormat(QPrinter.OutputFormat.NativeFormat)
         
-        pageCoutn = int(len(self.pageWidget.data)/(self.pageWidget.columnCount*self.pageWidget.rowCount))+1
+        self.doPrint(printer)
     
-        for page in range(pageCoutn):
-            if page>0:
-                printer.newPage()
-            self.pageWidget.setPage(page)
-            self.pageWidget.draw(painter)    
-            
+    def doPrint(self,printer):
+        
+        painter = QPainter(printer)
+
+        if self.allPagesCheckBox.isChecked():
+            pageCoutn = int(len(self.pageWidget.data)/(self.pageWidget.columnCount*self.pageWidget.rowCount))+1
+    
+            for page in range(pageCoutn):
+                if page>0:
+                    printer.newPage()
+                self.pageWidget.setPage(page)
+                self.pageWidget.draw(painter)    
+        else:
+            self.pageWidget.draw(painter)
+                        
         painter.end()
 
     def refreshPrinters(self):
