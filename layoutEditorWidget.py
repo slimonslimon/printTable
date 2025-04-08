@@ -251,7 +251,7 @@ class LayoutEditorWidget(QWidget):
 
   
 
-        layout.addStretch(1)
+        #layout.addStretch(1)
         sizeLine = QHBoxLayout()
 
         self.widthW=QSpinBox(self)
@@ -270,11 +270,17 @@ class LayoutEditorWidget(QWidget):
 
         layout.addLayout(sizeLine)
 
+        
 
         self.components=QWidget(self)
         self.componentsLayout=QVBoxLayout(self.components)
         self.components.setLayout(self.componentsLayout)
-        layout.addWidget(self.components)
+        #layout.addWidget(self.components)
+        scrollArea = QScrollArea(self)
+        scrollArea.setWidgetResizable(True)
+        scrollArea.setWidget(self.components)
+
+        layout.addWidget(scrollArea)
 
         buttonLine = QHBoxLayout()        
             
