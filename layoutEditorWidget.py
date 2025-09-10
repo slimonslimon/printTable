@@ -88,31 +88,40 @@ class ImgComponentEditor(QWidget):
     dataUpdate = pyqtSignal(dict)
     def __init__(self,componentData,parent=None):
         super().__init__(parent)
-        layout = QHBoxLayout(self)
+        layout = QVBoxLayout(self)
+        settingLine=QWidget(self)
+        settingLayout=QHBoxLayout(settingLine)
+        layout.addWidget(settingLine)
+
         self.xe=QSpinBox(self)
         self.xe.setValue(componentData['x'])
         self.xe.valueChanged.connect(self.onDataChange)
-        layout.addWidget(self.xe)
+        settingLayout.addWidget(self.xe)
 
         self.ye=QSpinBox(self)
         self.ye.setValue(componentData['y'])        
         self.ye.valueChanged.connect(self.onDataChange)
-        layout.addWidget(self.ye)
+        settingLayout.addWidget(self.ye)
 
         self.w=QSpinBox(self)
         self.w.setValue(componentData['w'])        
         self.w.valueChanged.connect(self.onDataChange)
-        layout.addWidget(self.w)
+        settingLayout.addWidget(self.w)
 
         self.h=QSpinBox(self)
         self.h.setValue(componentData['h'])
         self.h.valueChanged.connect(self.onDataChange)
-        layout.addWidget(self.h)
+        settingLayout.addWidget(self.h)
 
-        self.ch=QCheckBox("compute h",self)
-        self.ch.setChecked(componentData['ch'])
-        self.ch.stateChanged.connect(self.onDataChange)
-        layout.addWidget(self.ch)
+        self.center=QCheckBox("center",self)
+        self.center.setChecked(componentData['center'])
+        self.center.stateChanged.connect(self.onDataChange)
+        settingLayout.addWidget(self.center)
+
+        self.frame=QCheckBox("frame",self)
+        self.frame.setChecked(componentData['frame'])
+        self.frame.stateChanged.connect(self.onDataChange)
+        settingLayout.addWidget(self.frame)
 
         self.imgSrc = QLineEdit(componentData['imgSrc'],self)        
         self.imgSrc.textChanged.connect(self.onDataChange)
@@ -133,7 +142,8 @@ class ImgComponentEditor(QWidget):
                 "y":self.ye.value(),
                 "w":self.w.value(),
                 "h":self.h.value(),
-                "ch":self.ch.isChecked()
+                "center":self.center.isChecked(),
+                "frame":self.frame.isChecked()
             }
     
 class QRcodeComponentEditor(QWidget):
@@ -379,7 +389,8 @@ class LayoutEditorWidget(QWidget):
                 "y":10,
                 "w":50,
                 "h":50,
-                "ch":False                
+                "center":False,
+                "frame":False                
             })
         self.buildEditor()
         self.layoutWidget.updateLayoutData(self.layoutData)

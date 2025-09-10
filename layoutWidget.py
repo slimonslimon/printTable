@@ -70,14 +70,35 @@ class LayoutWidget(QWidget):
                 if(text==""):
                     continue
                 img = QImage(text)
+                if img.isNull():
+                    continue
+                if img.width()==0 or img.height()==0:
+                    continue
+                w=c['w']
                 h=c['h']
-                if c['ch']:
-                    h=img.height()*c['w']/img.width()
-                    c['h']=h
+                xo=0
+                yo=0
+                if c['center']:
+                    if img.width()/img.height()>c['w']/c['h']:
+                        h=img.height()*c['w']/img.width()
+                        w=c['w']
+                        xo=0;
+                        yo=(c['h']-h)/2
+                    else:
+                        w=img.width()*c['h']/img.height()
+                        h=c['h']
+                        xo=(c['w']-w)/2
+                        yo=0
+        
                 #img=img.scaled(int(self.mm2p(c['w'],p,'x')),int(self.mm2p(c['h'],p,'y')),Qt.AspectRatioMode.KeepAspectRatio)
-                p.drawImage(QRectF(self.mm2p(c['x']+x,p,'x'),
-                                  self.mm2p(c['y']+y,p,'y'),
-                                  self.mm2p(c['w'],p,'x'),
+                if c['frame']:
+                    p.drawRect(QRectF(self.mm2p(c['x']+x,p,'x'),
+                                    self.mm2p(c['y']+y,p,'y'),
+                                    self.mm2p(c['w'],p,'x'),
+                                    self.mm2p(c['h'],p,'h')))
+                p.drawImage(QRectF(self.mm2p(c['x']+xo+x,p,'x'),
+                                  self.mm2p(c['y']+yo+y,p,'y'),
+                                  self.mm2p(w,p,'x'),
                                   self.mm2p(h,p,'h')),
                            img)
                 
