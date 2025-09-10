@@ -70,11 +70,15 @@ class LayoutWidget(QWidget):
                 if(text==""):
                     continue
                 img = QImage(text)
+                h=c['h']
+                if c['ch']:
+                    h=img.height()*c['w']/img.width()
+                    c['h']=h
                 #img=img.scaled(int(self.mm2p(c['w'],p,'x')),int(self.mm2p(c['h'],p,'y')),Qt.AspectRatioMode.KeepAspectRatio)
                 p.drawImage(QRectF(self.mm2p(c['x']+x,p,'x'),
                                   self.mm2p(c['y']+y,p,'y'),
                                   self.mm2p(c['w'],p,'x'),
-                                  self.mm2p(c['h'],p,'h')),
+                                  self.mm2p(h,p,'h')),
                            img)
                 
             if c['type']=='qrcode':

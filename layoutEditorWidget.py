@@ -1,5 +1,5 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton,QFileDialog,QGroupBox,QFontComboBox,QSpinBox,QScrollArea
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton,QFileDialog,QGroupBox,QFontComboBox,QSpinBox,QScrollArea,QCheckBox
 from PyQt6.QtGui import QFont 
 from PyQt6.QtCore import Qt,pyqtSignal
 from layoutWidget import LayoutWidget
@@ -109,6 +109,11 @@ class ImgComponentEditor(QWidget):
         self.h.valueChanged.connect(self.onDataChange)
         layout.addWidget(self.h)
 
+        self.ch=QCheckBox("compute h",self)
+        self.ch.setChecked(componentData['ch'])
+        self.ch.stateChanged.connect(self.onDataChange)
+        layout.addWidget(self.ch)
+
         self.imgSrc = QLineEdit(componentData['imgSrc'],self)        
         self.imgSrc.textChanged.connect(self.onDataChange)
         layout.addWidget(self.imgSrc)
@@ -127,7 +132,8 @@ class ImgComponentEditor(QWidget):
                 "x":self.xe.value(),
                 "y":self.ye.value(),
                 "w":self.w.value(),
-                "h":self.h.value()
+                "h":self.h.value(),
+                "ch":self.ch.isChecked()
             }
     
 class QRcodeComponentEditor(QWidget):
@@ -372,7 +378,8 @@ class LayoutEditorWidget(QWidget):
                 "x":10,
                 "y":10,
                 "w":50,
-                "h":50,                
+                "h":50,
+                "ch":False                
             })
         self.buildEditor()
         self.layoutWidget.updateLayoutData(self.layoutData)
